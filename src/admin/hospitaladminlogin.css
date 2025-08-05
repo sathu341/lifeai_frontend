@@ -1,0 +1,13 @@
+.admin-dark-wrapper {
+  background-color: #121212;
+  min-height: 100vh;
+}
+
+.admin-login-container {
+  color: #ffffff;
+}
+
+.login-box {
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

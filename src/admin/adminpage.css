@@ -1,0 +1,41 @@
+/* src/components/adminpage.css */
+
+body {
+  background: linear-gradient(135deg, #1a1a1a, #2b2b2b);
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.admin-dashboard-container {
+  padding: 40px 20px;
+  min-height: 100vh;
+}
+
+.dashboard-title {
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 5px #000;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  border-radius: 15px;
+  color: white;
+}
+
+.glass-card .card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.glass-card .card-text {
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.motion-card {
+  transition: transform 0.3s ease-in-out;
+}
