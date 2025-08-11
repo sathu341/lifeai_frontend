@@ -3,9 +3,12 @@ import { JournalMedical } from "react-bootstrap-icons"
 import { useState } from "react"
 import axios from "axios"
 import '../App.css'
+import { useContext } from "react"
+import contextdes from "../contextvar"
 export default function TreatmentPlan(){
     const [disease,setDisease]=useState("")
     const [result,setResult]=useState("")
+    const {diseasname}=useContext(contextdes)
     const getTreatment=()=>{
        try{
              axios.post("https://symptom-checkers.onrender.com/api/treatment",
@@ -37,7 +40,8 @@ export default function TreatmentPlan(){
                                     name="disease" required/>
 
                              
-                                {disease}
+                                
+                                {diseasname}
                             
                             <Form.Group className="m-3">
                                 <Button variant="primary" onClick={getTreatment}>

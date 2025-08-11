@@ -43,7 +43,8 @@ const generateP = async () => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        transcript: transText
+        transcript: transText,
+       
       }),
     });
 
@@ -54,6 +55,7 @@ const generateP = async () => {
 
     const blob = await response.blob();
     const pdfUrl = window.URL.createObjectURL(blob);
+    console.log(pdfUrl)
 
     // Open PDF in new tab
     window.open(pdfUrl, "_blank");

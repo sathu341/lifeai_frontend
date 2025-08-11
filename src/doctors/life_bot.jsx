@@ -4,14 +4,9 @@ import { useState } from 'react';
 import '../App.css';
 import { Button, Card, Spinner } from 'react-bootstrap';
 import { fetchAssessment,extractTranscript } from './symptomapi';
-import  contextdes  from '../contextvar';
-import { useContext } from 'react';
-import TreatmentPlan from './treatmentplan';
+import axiso from 'axios'
 
-import HandwritingToText from './canvas_text';
-
-export default function SpeechText() {
-  const{diseasname,setDiseasename}=useContext(contextdes)
+export default function LifeBot() {
     const [symptomsText, setSymptomsText] = useState('');
 const [observationsText, setObservationsText] = useState('');
 const [diagnosisResult, setDiagnosisResult] = useState(null);
@@ -44,46 +39,33 @@ const [diagnosisResult, setDiagnosisResult] = useState(null);
 
   setLoading(true);
   try {
-    const apiResponse = await extractTranscript(transcript);
-    const extracted = apiResponse.extracted_info;
+   
 
     // Parse symptoms and observations
-    const symptoms = extracted
-      .split("**Symptoms:**")[1]
-      ?.split("**Observations:**")[0]
-      ?.split("-")
-      ?.map(i => i.trim())
-      .filter(Boolean)
-      .join(", ");
-
-    const observations = extracted
-      .split("**Observations:**")[1]
-      ?.split("-")
-      ?.map(i => i.trim())
-      .filter(Boolean)
-      .join(", ");
+    const symptoms = transcript
+      
 
     setSymptomsText(symptoms || '');
-    setObservationsText(observations || '');
-    setResult(apiResponse);
+   
   } catch (error) {
     console.error(error.message);
     setResult({ error: error.message });
   }
   setLoading(false);
 };
+
 //Diagnose
 const diagnoseSubmit = async () => {
   if (!symptomsText.trim()) return;
 
   setLoading(true);
   try {
-    const response = await fetch("https://symptom-checkers.onrender.com/api/diagnose", {
+    const response = await fetch("https://symptom-checkers.onrender.com/api/lifebot-response", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        symptoms: symptomsText,
-        observations: observationsText || "N/A",
+        user_input: symptomsText,
+        
       }),
     });
 
@@ -93,17 +75,50 @@ const diagnoseSubmit = async () => {
     }
 
     const data = await response.json();
-    setDiagnosisResult(data); // diagnoses, final_symptoms, recommended_tests
+    setDiagnosisResult(data.response); // diagnoses, final_symptoms, recommended_tests
   } catch (error) {
     console.error(error.message);
     setDiagnosisResult({ error: error.message });
   }
   setLoading(false);
 };
+const generatePdf = async (e) => {
+  e.preventDefault();
+  const url = "https://symptom-checkers.onrender.com/api/lifebot-generate-pdf";
+ 
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text:diagnosisResult,
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(err);
+    }
+
+    const blob = await response.blob();
+
+    // ✅ Create object URL directly from blob
+    const pdfUrl = window.URL.createObjectURL(blob);
+
+    // ✅ Open in new tab
+    window.open(pdfUrl, "_blank");
+  } catch (error) {
+    console.error("PDF generation failed:", error.message);
+  }
+};
 
 
   return (
     <>
+      <h3>🔮LifeBot</h3>
       <p>Microphone: {listening ? '🎤 Listening...' : '🛑 Stopped'}</p>
       <p>
         Language:
@@ -134,12 +149,6 @@ const diagnoseSubmit = async () => {
       <div>
         <strong>Transcript:</strong>
         <div className="p-2">{transcript}</div>
-        <Card>
-          <Card.Header>Canvas</Card.Header>
-          <Card.Body>
-            <HandwritingToText/>
-          </Card.Body>
-        </Card>
       </div>
 
       <div className="my-3">
@@ -153,11 +162,11 @@ const diagnoseSubmit = async () => {
 
   <>
     <Card className="my-3">
-      <Card.Header>Editable Symptoms</Card.Header>
-
+      <Card.Header>📜Editable Content & Enter your Content </Card.Header>
       <Card.Body>
         <textarea
           className="form-control"
+          id="content"
           rows={3}
           value={symptomsText}
           onChange={(e) => setSymptomsText(e.target.value)}
@@ -165,68 +174,34 @@ const diagnoseSubmit = async () => {
       </Card.Body>
     </Card>
 
-    <Card className="my-3">
-      <Card.Header>Editable Observations</Card.Header>
-      <Card.Body>
-        <textarea
-          className="form-control"
-          rows={3}
-          value={observationsText}
-          onChange={(e) => setObservationsText(e.target.value)}
-        />
-      </Card.Body>
-    </Card>
-
+    
     <Button variant="success" onClick={diagnoseSubmit}>
-      Diagnose
+     Submit
     </Button>
   </>
 
 {diagnosisResult && !diagnosisResult.error && (
-  <Card className="my-3">
-    <Card.Header><ClipboardPlusFill/> Diagnosis & Test Suggestions</Card.Header>
+
+   <Card>
+    <Card.Header>
+        Response
+    </Card.Header>
+
     <Card.Body>
-      {diagnosisResult.diagnosis_summary
-        .split("\n")
-        .filter(Boolean)
-        .map((summaryLine, index) => {
-          // Extract name and confidence
-          const [diseaseWithNumber, confidence] = summaryLine.split("—").map(s => s.trim());
-          const diseaseName = diseaseWithNumber.replace(/^\d+\.\s*/, '');
-          setDiseasename(diseaseName)
-
-          // Find matching test suggestion
-          const testBlock = diagnosisResult.test_suggestions
-            .split("\n\n")
-            .find(block => block.toLowerCase().includes(diseaseName.toLowerCase()));
-
-          const tests = testBlock
-            ? testBlock.split("\n").slice(1).flatMap(line => line.replace(/^[-•]\s*/, '').split(","))
-            : [];
-
-          return (
-            <Card key={index} className="mb-3">
-              <Card.Header>
-                <strong>{diseaseName}</strong> — <span className="text-success">{confidence}</span>
-              </Card.Header>
-              <Card.Body>
-                <strong>Recommended Tests:</strong>
-                <ul>
-                  {tests.map((test, i) => (
-                    <li key={i}>{test.trim()}</li>
-                  ))}
-                </ul>
-              </Card.Body>
-            </Card>
-          );
-        })}
+        <textarea
+          style={{height:'auto',minHeight:'200px'}}
+          className="form-control"
+          rows={3}
+          value={diagnosisResult}
+          onChange={(e) => setDiagnosisResult(e.target.value)}
+        />
     </Card.Body>
-    <Card.Title>Treament</Card.Title>
-    <Card.Text>
-       <TreatmentPlan/>
-    </Card.Text>
-  </Card>
- 
+    <Card.Footer>
+        <Button variant='info' onClick={generatePdf}>
+             Generate
+        </Button>
+    </Card.Footer>
+   </Card>
 )}
 
 

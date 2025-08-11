@@ -5,18 +5,35 @@ import './login.css';
 import { Container, Row, Col, Form, FloatingLabel, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { easeInOut, motion } from 'framer-motion';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const nav = useNavigate();
-
-  const handleSubmit = () => {
-    toast.success("Successfully Logged In", {
+  const [user,setUser]=useState({})
+  const changeValue=(e)=>{
+    setUser({...user,[e.target.name]:e.target.value})
+  }
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if(user.username=="camerin" && user.password=="123"){
+              toast.success("Successfully Logged In", {
       position: "top-center",
       autoClose: 1500,
       onClose: () => {
         nav("/doctor");
       }
     });
+    }
+    else{
+          toast.error("Invaild user", {
+      position: "top-center",
+      autoClose: 1500,
+      onClose: () => {
+        nav("/");
+      }
+    });
+    }
+  
   };
 
   return (
@@ -38,15 +55,15 @@ export default function LoginPage() {
                 />
             </div>
 
-            <Form>
+            <Form method='post' onSubmit={handleSubmit}>
               <Form.Group className='mb-3'>
                 <FloatingLabel controlId='username' label="Username">
-                  <Form.Control type="text" placeholder='username' name="username" />
+                  <Form.Control type="text" placeholder='username' name="username" onChange={changeValue} required/>
                 </FloatingLabel>
               </Form.Group>
               <Form.Group className='mb-3'>
                 <FloatingLabel controlId='password' label="Password">
-                  <Form.Control type="password" placeholder='password' name='password' />
+                  <Form.Control type="password" placeholder='password' name='password'onChange={changeValue} required />
                 </FloatingLabel>
               </Form.Group>
               <Form.Group className='mb-3 text-center'>
@@ -55,7 +72,7 @@ export default function LoginPage() {
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="btn btn-info px-5 text-center"
-                onClick={handleSubmit}
+                type="submit"
             >
                 Login
             </motion.button>

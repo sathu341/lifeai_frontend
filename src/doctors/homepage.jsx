@@ -7,6 +7,7 @@ import {
   FileTextOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
+  MedicineBoxFilled,
 } from "@ant-design/icons";
 import { Link, Outlet } from "react-router-dom";
 import "../App.css";
@@ -39,13 +40,28 @@ useEffect(() => {
     },
     {
       key: "2",
-      icon: <MedicineBoxOutlined />,
+      icon: <MedicineBoxFilled style={{color:"#32CD32"}}/>,
       label: <Link className="linkText" to="/doctor/treamtentplan">Treatment Plan</Link>,
     },
     {
       key: "3",
       icon: <FileTextOutlined />,
       label: <Link  className="linkText" to="/doctor/prescription">Generate Prescription</Link>,
+    },
+    {
+      key:"4",
+      icon:<MedicineBoxFilled style={{color:"#32CD32"}} />,
+      label: <Link  className="linkText" to="/doctor/lifebot"> 🔮Life Bot</Link>
+    },
+      {
+      key:"5",
+      icon:<MedicineBoxFilled style={{color:"#32CD32"}} />,
+      label: <Link  className="linkText" to="/doctor/drug"> 💊Drug Search</Link>
+    },
+       {
+      key:"6",
+      icon:<MedicineBoxFilled style={{color:"#32CD32"}} />,
+      label: <Link  className="linkText" to="/doctor/labreport"> 🧪Lab Report Upload</Link>
     },
   ];
 

@@ -1,12 +1,14 @@
-import { lazy,Suspense } from "react"
+import { lazy,Suspense, useState } from "react"
 import { Routes,Route } from "react-router-dom"
 import Homepage from "./doctors/homepage.jsx"
 import SpeechText from "./doctors/speechtext.jsx"
 import LoadingPage from "./loadingpage.jsx"
 
+import  contextdes  from "./contextvar.js"
 
 
 function App() {
+  const[diseasname,setDiseasename]=useState("")
  const LGP=lazy(()=> import('./lifeai/loginpage.jsx'))
  const Tmt=lazy(()=> import('./doctors/treatmentplan.jsx'))
  const Sp=lazy(()=> import('./doctors/speechtext.jsx'))
@@ -19,9 +21,14 @@ function App() {
  const HD=lazy(()=> import('./admin/hospitaldashboard.jsx'))
  const ADoc=lazy(()=> import('./admin/adddoctor.jsx'))
  const DView=lazy(()=> import('./admin/view-doctor.jsx'))
+ const LifeBot=lazy(()=> import('./doctors/life_bot.jsx'))
+ const Drg=lazy(()=> import('./doctors/drugsideffect.jsx'))
+ const Canv=lazy(()=> import('./doctors/canvas_text.jsx'))
+ const Lab=lazy(()=> import('./doctors/upload_lab_rep.jsx'))
 
   return (
     <>
+    <contextdes.Provider value={{diseasname,setDiseasename}}>
       <Suspense fallback={<LoadingPage/>}>
       <Routes>
         <Route path="/hospital-dashboard" element={<HD/>}>
@@ -39,7 +46,11 @@ function App() {
         <Route path="/doctor" element={<Homepage/>}>
         <Route path="/doctor" element={ <Sp/>}/>
         <Route path="prescription" element={<GP/>}/>
+        <Route path="drug" element={<Drg/>}/>
+        <Route path="canvastext"element={<Canv/>}/>
+        <Route path="labreport" element={<Lab/>}/>
 
+        <Route path="lifebot" element={<LifeBot/>}/>
         
              <Route path="treamtentplan" element={
               <Tmt/>
@@ -48,6 +59,8 @@ function App() {
         
       </Routes>
       </Suspense>
+
+      </contextdes.Provider>
     </>
   )
 }
